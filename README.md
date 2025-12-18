@@ -41,11 +41,10 @@
 Before you begin, ensure you have the following installed on your system:
 
 - [Node.js](https://nodejs.org/en/) (v18 or later)
-- [Bun](https://bun.sh/docs/installation)
-  (for `npm` alternative)
-- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
+- [Bun](https://bun.sh/docs/installation) (preferred over npm)
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) or [Podman](https://podman.io/getting-started/installation) and [Podman Compose](https://github.com/containers/podman-compose)
 
-> **Note:** Docker is optional, but it's essential for running the local database and Redis services. If you're planning to run the frontend or want to contribute to frontend features, you can skip the Docker setup. If you have followed the steps below in [Setup](#setup), you're all set to go!
+> **Note:** Container runtime (Docker or Podman) is optional, but it's essential for running the local database and Redis services. If you're planning to run the frontend or want to contribute to frontend features, you can skip the container setup. If you have followed the steps below in [Setup](#setup), you're all set to go!
 
 ### Setup
 
@@ -75,8 +74,11 @@ Before you begin, ensure you have the following installed on your system:
 1. Start the database and Redis services:
 
    ```bash
-   # From project root
+   # From project root using Docker
    docker-compose up -d
+
+   # Or using Podman
+   podman-compose up -d
    ```
 
 2. Navigate to the web app directory:

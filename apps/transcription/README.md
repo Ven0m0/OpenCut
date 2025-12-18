@@ -28,7 +28,11 @@ source env/bin/activate
 3. Install libraries/packages/whatever you wanna call them
 
 ```bash
+# Using pip
 pip install -r requirements.txt
+
+# Or using uv (faster alternative)
+uv pip install -r requirements.txt
 ```
 
 4. Make sure you have a Modal account. If you don't: [create one](https://modal.com/)

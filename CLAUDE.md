@@ -120,10 +120,13 @@ MARBLE_WORKSPACE_KEY="workspace-key"
 NEXT_PUBLIC_MARBLE_API_URL="https://api.marblecms.com"
 ```
 
-**Docker services:**
+**Container services:**
 ```bash
-# Start local database and Redis
+# Start local database and Redis with Docker
 docker-compose up -d
+
+# Or use Podman as an alternative
+podman-compose up -d
 ```
 
 ## Project Structure
