@@ -139,17 +139,14 @@ class StorageService {
 
   async loadAllProjects(): Promise<TProject[]> {
     const projectIds = await this.projectsAdapter.list();
-    const projects: TProject[] = [];
 
-    for (const id of projectIds) {
-      const project = await this.loadProject({ id });
-      if (project) {
-        projects.push(project);
-      }
-    }
+    // Load all projects in parallel for better performance
+    const projects = await Promise.all(
+      projectIds.map(id => this.loadProject({ id }))
+    );
 
-    // Sort by last updated (most recent first)
-    return projects.sort(
+    // Filter out null values and sort by last updated (most recent first)
+    return (projects.filter(Boolean) as TProject[]).sort(
       (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
     );
   }
@@ -245,16 +242,13 @@ class StorageService {
     });
 
     const mediaIds = await mediaMetadataAdapter.list();
-    const mediaItems: MediaFile[] = [];
 
-    for (const id of mediaIds) {
-      const item = await this.loadMediaFile({ projectId, id });
-      if (item) {
-        mediaItems.push(item);
-      }
-    }
+    // Load all media files in parallel for better performance
+    const mediaItems = await Promise.all(
+      mediaIds.map(id => this.loadMediaFile({ projectId, id }))
+    );
 
-    return mediaItems;
+    return mediaItems.filter(Boolean) as MediaFile[];
   }
 
   async deleteMediaFile({
