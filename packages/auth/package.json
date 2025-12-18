@@ -12,11 +12,11 @@
   },
   "dependencies": {
     "@opencut/db": "workspace:*",
-    "@t3-oss/env-nextjs": "^0.13.8",
-    "better-auth": "^1.1.1",
+    "@t3-oss/env-nextjs": "^0.13.10",
+    "better-auth": "^1.4.7",
     "zod": "^4.0.5"
   },
   "devDependencies": {
-    "@types/node": "^22.10.2"
+    "@types/node": "^24.10.4"
   }
 }
