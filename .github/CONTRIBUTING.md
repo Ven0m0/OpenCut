@@ -7,11 +7,10 @@ Thank you for your interest in contributing to OpenCut! This document provides g
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/en/) (v18 or later)
-- [Bun](https://bun.sh/docs/installation)
-  (for `npm` alternative)
-- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
+- [Bun](https://bun.sh/docs/installation) (preferred over npm)
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) or [Podman](https://podman.io/getting-started/installation) and [Podman Compose](https://github.com/containers/podman-compose)
 
-> **Note:** Docker is optional, but it's essential for running the local database and Redis services. If you're planning to contribute to frontend features, you can skip the Docker setup. If you have followed the steps below in [Setup](#setup), you're all set to go!
+> **Note:** Container runtime (Docker or Podman) is optional, but it's essential for running the local database and Redis services. If you're planning to contribute to frontend features, you can skip the container setup. If you have followed the steps below in [Setup](#setup), you're all set to go!
 
 ### Setup
 
@@ -34,10 +33,10 @@ Thank you for your interest in contributing to OpenCut! This document provides g
 5. Install dependencies: `bun install`
 6. Start the development server: `bun run dev`
 
-> **Note:** If you see an error like `Unsupported URL Type "workspace:*"` when running `npm install`, you have two options:
+> **Note:** We recommend using **bun** as your package manager. If you see an error like `Unsupported URL Type "workspace:*"` when running `npm install`, you have two options:
 >
 > 1. Upgrade to a recent npm version (v9 or later), which has full workspace protocol support.
-> 2. Use an alternative package manager such as **bun** or **pnpm**.
+> 2. Use an alternative package manager such as **bun** (preferred) or **pnpm**.
 
 ## What to Focus On
 
@@ -69,8 +68,11 @@ If you're unsure whether your idea falls into the preview category, feel free to
 1. Start the database and Redis services:
 
    ```bash
-   # From project root
+   # From project root using Docker
    docker-compose up -d
+
+   # Or using Podman
+   podman-compose up -d
    ```
 
 2. Navigate to the web app directory:
