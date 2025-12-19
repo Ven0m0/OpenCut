@@ -110,15 +110,8 @@ export async function getVideoInfo({
 export const extractTimelineAudio = async (
   onProgress?: (progress: number) => void
 ): Promise<Blob> => {
-  // Create fresh FFmpeg instance for this operation
-  const ffmpeg = new FFmpeg();
-
-  try {
-    await ffmpeg.load();
-  } catch (error) {
-    console.error("Failed to load fresh FFmpeg instance:", error);
-    throw new Error("Unable to initialize audio processing. Please try again.");
-  }
+  // Reuse singleton FFmpeg instance for better performance
+  const ffmpeg = await initFFmpeg();
 
   const timeline = useTimelineStore.getState();
   const mediaStore = useMediaStore.getState();

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import {
   Scissors,
   Trash2,
@@ -32,7 +33,7 @@ import {
 } from "../../ui/context-menu";
 import { useMediaPanelStore } from "../media-panel/store";
 
-export function TimelineElement({
+const TimelineElementComponent = ({
   element,
   track,
   zoomLevel,
@@ -40,11 +41,15 @@ export function TimelineElement({
   onElementMouseDown,
   onElementClick,
 }: TimelineElementProps) {
-  const { mediaFiles } = useMediaStore();
+  // Use selectors for better performance
+  const mediaFiles = useMediaStore((state) => state.mediaFiles);
+  const dragState = useTimelineStore((state) => state.dragState);
+  const selectedElements = useTimelineStore((state) => state.selectedElements);
+  const currentTime = usePlaybackStore((state) => state.currentTime);
+
+  // Actions don't need selectors - they never change reference
   const {
-    dragState,
     copySelected,
-    selectedElements,
     deleteSelected,
     splitSelected,
     toggleSelectedHidden,
@@ -54,7 +59,6 @@ export function TimelineElement({
     replaceElementWithFile,
     getContextMenuState,
   } = useTimelineStore();
-  const { currentTime } = usePlaybackStore();
 
   const mediaItem =
     element.type === "media"
@@ -384,4 +388,19 @@ export function TimelineElement({
       </ContextMenuContent>
     </ContextMenu>
   );
-}
+};
+
+export const TimelineElement = memo(TimelineElementComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.element.id === nextProps.element.id &&
+    prevProps.element.startTime === nextProps.element.startTime &&
+    prevProps.element.duration === nextProps.element.duration &&
+    prevProps.element.trimStart === nextProps.element.trimStart &&
+    prevProps.element.trimEnd === nextProps.element.trimEnd &&
+    prevProps.element.hidden === nextProps.element.hidden &&
+    prevProps.element.muted === nextProps.element.muted &&
+    prevProps.track.id === nextProps.track.id &&
+    prevProps.zoomLevel === nextProps.zoomLevel &&
+    prevProps.isSelected === nextProps.isSelected
+  );
+});

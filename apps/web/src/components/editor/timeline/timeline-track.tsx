@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, memo } from "react";
 import { useTimelineStore } from "@/stores/timeline-store";
 import { useMediaStore } from "@/stores/media-store";
 import { toast } from "sonner";
@@ -26,7 +26,7 @@ import { DEFAULT_FPS, useProjectStore } from "@/stores/project-store";
 import { useTimelineSnapping, SnapPoint } from "@/hooks/use-timeline-snapping";
 import { useEdgeAutoScroll } from "@/hooks/use-edge-auto-scroll";
 
-export function TimelineTrackContent({
+const TimelineTrackContentComponent = ({
   track,
   zoomLevel,
   onSnapPointChange,
@@ -38,7 +38,7 @@ export function TimelineTrackContent({
   onSnapPointChange?: (snapPoint: SnapPoint | null) => void;
   rulerScrollRef: React.RefObject<HTMLDivElement>;
   tracksScrollRef: React.RefObject<HTMLDivElement>;
-}) {
+}) => {
   const { mediaFiles } = useMediaStore();
   const {
     tracks,
@@ -1196,4 +1196,14 @@ export function TimelineTrackContent({
       </div>
     </div>
   );
-}
+};
+
+export const TimelineTrackContent = memo(TimelineTrackContentComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.track.id === nextProps.track.id &&
+    prevProps.track.elements === nextProps.track.elements &&
+    prevProps.track.type === nextProps.track.type &&
+    prevProps.track.muted === nextProps.track.muted &&
+    prevProps.zoomLevel === nextProps.zoomLevel
+  );
+});

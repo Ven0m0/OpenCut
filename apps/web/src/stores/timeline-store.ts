@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { produce } from "immer";
 import {
   TrackType,
   TimelineElement,
@@ -250,6 +251,9 @@ interface TimelineStore {
   addElementToNewTrack: (item: MediaFile | TextElement | DragData) => boolean;
 }
 
+// Debounce timeout for auto-save
+let saveTimeout: NodeJS.Timeout | null = null;
+
 export const useTimelineStore = create<TimelineStore>((set, get) => {
   // Helper to update tracks and maintain ordering
   const updateTracks = (newTracks: TimelineTrack[]) => {
@@ -288,11 +292,12 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
     }
   };
 
-  // Helper to update tracks and auto-save
+  // Helper to update tracks and auto-save with debouncing
   const updateTracksAndSave = (newTracks: TimelineTrack[]) => {
     updateTracks(newTracks);
-    // Auto-save in background
-    setTimeout(autoSaveTimeline, 100);
+    // Debounce auto-save to avoid excessive writes
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(autoSaveTimeline, 500);
   };
 
   // Initialize with proper track ordering
@@ -319,8 +324,9 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
 
     pushHistory: () => {
       const { _tracks, history } = get();
+      // Use Immer for efficient immutable copy instead of JSON deep clone
       set({
-        history: [...history, JSON.parse(JSON.stringify(_tracks))],
+        history: [...history, produce(_tracks, () => {})],
         redoStack: [],
       });
     },
@@ -332,7 +338,8 @@ export const useTimelineStore = create<TimelineStore>((set, get) => {
       updateTracksAndSave(prev);
       set({
         history: history.slice(0, -1),
-        redoStack: [...redoStack, JSON.parse(JSON.stringify(_tracks))],
+        // Use Immer for efficient immutable copy
+        redoStack: [...redoStack, produce(_tracks, () => {})],
       });
     },
 

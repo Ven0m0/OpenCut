@@ -8,7 +8,7 @@ import { usePlaybackStore } from "@/stores/playback-store";
 import { useEditorStore } from "@/stores/editor-store";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Expand, SkipBack, SkipForward } from "lucide-react";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { renderTimelineFrame } from "@/lib/timeline-renderer";
 import { cn } from "@/lib/utils";
 import { formatTimeCode } from "@/lib/time";
@@ -39,12 +39,19 @@ interface ActiveElement {
 }
 
 export function PreviewPanel() {
-  const { tracks, getTotalDuration, updateTextElement } = useTimelineStore();
-  const { mediaFiles } = useMediaStore();
-  const { currentTime, toggle, setCurrentTime } = usePlaybackStore();
-  const { isPlaying, volume, muted } = usePlaybackStore();
-  const { activeProject } = useProjectStore();
-  const { currentScene } = useSceneStore();
+  // Use selectors for better performance
+  const tracks = useTimelineStore((state) => state.tracks);
+  const mediaFiles = useMediaStore((state) => state.mediaFiles);
+  const currentTime = usePlaybackStore((state) => state.currentTime);
+  const isPlaying = usePlaybackStore((state) => state.isPlaying);
+  const volume = usePlaybackStore((state) => state.volume);
+  const muted = usePlaybackStore((state) => state.muted);
+  const activeProject = useProjectStore((state) => state.activeProject);
+  const currentScene = useSceneStore((state) => state.currentScene);
+
+  // Actions don't need selectors
+  const { getTotalDuration, updateTextElement } = useTimelineStore();
+  const { toggle, setCurrentTime } = usePlaybackStore();
   const previewRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { getCachedFrame, cacheFrame, invalidateCache, preRenderNearbyFrames } =
@@ -262,8 +269,10 @@ export function PreviewPanel() {
 
   const hasAnyElements = tracks.some((track) => track.elements.length > 0);
   const shouldRenderPreview = hasAnyElements || activeProject?.backgroundType;
-  const getActiveElements = (): ActiveElement[] => {
-    const activeElements: ActiveElement[] = [];
+
+  // Memoize expensive active elements calculation
+  const activeElements = useMemo((): ActiveElement[] => {
+    const result: ActiveElement[] = [];
 
     // Iterate tracks from bottom to top so topmost track renders last (on top)
     [...tracks].reverse().forEach((track) => {
@@ -283,15 +292,13 @@ export function PreviewPanel() {
                 : mediaFiles.find((item) => item.id === element.mediaId) ||
                   null;
           }
-          activeElements.push({ element, track, mediaItem });
+          result.push({ element, track, mediaItem });
         }
       });
     });
 
-    return activeElements;
-  };
-
-  const activeElements = getActiveElements();
+    return result;
+  }, [tracks, currentTime, mediaFiles]);
 
   // Ensure first frame after mount/seek renders immediately
   useEffect(() => {
